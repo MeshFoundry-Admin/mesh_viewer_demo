@@ -3,7 +3,8 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({command}) =>({
+  base: command === 'build' ? '/mesh_viewer_demo/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -28,4 +29,4 @@ export default defineConfig({
     setupFiles: ['./src/test-setup.ts'],
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
   },
-});
+}));
