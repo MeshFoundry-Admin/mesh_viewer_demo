@@ -72,6 +72,7 @@ function notifyListeners(): void {
 export function recordLoadMetrics(metrics: LoadMetrics): PerformanceSample {
   const loadDurationMs = metrics.loadEndMs - metrics.loadStartMs;
   const parseDurationMs = metrics.parseEndMs - metrics.parseStartMs;
+  void parseDurationMs;
 
   if (metrics.fallbackUsed) {
     fallbackCount++;

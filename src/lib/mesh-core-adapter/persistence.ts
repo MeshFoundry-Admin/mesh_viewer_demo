@@ -276,15 +276,19 @@ class IndexedDBAdapter implements PersistenceAdapter {
 class NoopAdapter implements PersistenceAdapter {
   readonly driver: StorageDriver = 'none';
 
-  async get<T>(): Promise<T | null> {
+  async get<T>(key: string): Promise<T | null> {
+    void key;
     return null;
   }
 
-  async set<T>(): Promise<void> {
+  async set<T>(key: string, value: T): Promise<void> {
+    void key;
+    void value;
     // no-op
   }
 
-  async remove(): Promise<void> {
+  async remove(key: string): Promise<void> {
+    void key;
     // no-op
   }
 

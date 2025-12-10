@@ -368,12 +368,15 @@ export function parseAdapterMetrics(metrics: unknown): AdapterMetrics {
  * @param data - Data to validate
  * @param validateFn - Validation function
  */
-export function validateInDev<T>(
+export function validateInDev(
   schemaName: string,
   data: unknown,
   validateFn: (data: unknown) => ValidationResult
 ): void {
-  if (process.env['NODE_ENV'] === 'development') {
+  // Use globalThis to access process in environments that expose it (Node/Vitest).
+  // This avoids requiring @types/node in the browser build.
+  const nodeEnv = (globalThis as any).process?.env?.NODE_ENV;
+  if (nodeEnv === 'development') {
     const result = validateFn(data);
     if (!result.valid) {
       console.warn(

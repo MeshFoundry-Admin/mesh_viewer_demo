@@ -57,8 +57,8 @@ export function PlaneGizmo({
   onDragEnd,
 }: PlaneGizmoProps) {
   const { scene } = useThree();
-  const controlsRef = useRef<TransformControlsImpl>(null);
-  const meshRef = useRef<THREE.Mesh>(null);
+  const controlsRef = useRef<TransformControlsImpl | null>(null);
+  const meshRef = useRef<THREE.Mesh | null>(null);
   const isDraggingRef = useRef(false);
   const onTransformChangeRef = useRef(onTransformChange);
   
@@ -113,9 +113,10 @@ export function PlaneGizmo({
     const controls = controlsRef.current;
     if (!controls) return;
 
-    const handleDraggingChanged = (event: { value: boolean }) => {
-      isDraggingRef.current = event.value;
-      if (event.value) {
+    const handleDraggingChanged = (event: any) => {
+      const val = event?.value ?? false;
+      isDraggingRef.current = Boolean(val);
+      if (val) {
         onDragStart?.();
       } else {
         onDragEnd?.();
@@ -132,11 +133,11 @@ export function PlaneGizmo({
       }
     };
 
-    controls.addEventListener('dragging-changed', handleDraggingChanged as EventListener);
+    controls.addEventListener('dragging-changed', handleDraggingChanged as any);
     controls.addEventListener('objectChange', handleObjectChange);
     
     return () => {
-      controls.removeEventListener('dragging-changed', handleDraggingChanged as EventListener);
+      controls.removeEventListener('dragging-changed', handleDraggingChanged as any);
       controls.removeEventListener('objectChange', handleObjectChange);
     };
   }, [onDragStart, onDragEnd]);

@@ -38,7 +38,7 @@ export function App() {
 
   // Toast state
   const [toast, setToast] = useState<ToastState>({ message: '', type: 'success', visible: false });
-  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showToast = useCallback((message: string, type: ToastState['type'] = 'success') => {
     if (toastTimeoutRef.current) {

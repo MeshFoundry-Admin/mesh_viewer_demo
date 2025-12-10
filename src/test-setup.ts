@@ -32,7 +32,7 @@ HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
 })) as unknown as typeof HTMLCanvasElement.prototype.getContext;
 
 // ResizeObserver mock
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
+(globalThis as any).ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn()

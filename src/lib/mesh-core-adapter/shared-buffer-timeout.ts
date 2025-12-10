@@ -107,6 +107,7 @@ export function createSharedBufferLockMonitor(
     onTimeoutWarning,
     continueAfterTimeout = true
   } = options;
+  void continueAfterTimeout;
 
   let startTime: number | null = null;
   let timeoutId: ReturnType<typeof setTimeout> | null = null;

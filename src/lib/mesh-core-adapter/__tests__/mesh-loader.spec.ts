@@ -25,9 +25,10 @@ describe('loadMeshAsset', () => {
       maxFileBytes: 8
     });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error).toBe('UnsupportedAsset.too_large');
+    expect(result.status).toBe('error');
+    if (result.status === 'error') {
+      // Adapter migrated to structured AdapterError codes
+      expect(result.error?.code).toBe('E_FILE_TOO_LARGE');
     }
     expect(bridge.parseMesh).not.toHaveBeenCalled();
   });
@@ -61,8 +62,8 @@ describe('loadMeshAsset', () => {
       capabilities: baseCapabilities
     });
 
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(result.status).toBe('success');
+    if (result.status === 'success' && result.asset) {
       // format must be ply_binary_le
       expect(result.asset.format).toBe('ply_binary_le');
       result.asset.buffers.release();
@@ -93,12 +94,13 @@ f 1 2 3
       now: () => timestamps.shift() ?? Date.now()
     });
 
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(result.status).toBe('success');
+    if (result.status === 'success' && result.asset) {
       // Verify first vertex since JS parser processed the OBJ
       expect(result.asset.buffers.vertexView[0]).toBeCloseTo(0.5);
       expect(result.asset.buffers.indexView[0]).toBe(0);
-      expect(result.telemetry.loadDurationMs).toBe(250);
+      // Telemetry migrated to metrics.totalTimeMs
+      expect(result.metrics.totalTimeMs).toBe(250);
       // JS parser does not call bridge.releaseBuffers
       result.asset.buffers.release();
     }
@@ -130,8 +132,8 @@ endsolid test
       capabilities: baseCapabilities
     });
 
-    expect(result.ok).toBe(true);
-    if (result.ok) {
+    expect(result.status).toBe('success');
+    if (result.status === 'success' && result.asset) {
       expect(result.asset.fileName).toBe('legacy.stl');
       expect(result.asset.format).toBe('stl');
       expect(result.asset.buffers.vertexView.length).toBe(9); // 3 vertices * 3 coords

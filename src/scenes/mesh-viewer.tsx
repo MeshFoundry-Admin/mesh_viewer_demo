@@ -1,19 +1,15 @@
 import { useRef, useMemo, useEffect, useState, useCallback } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
-import { OrbitControls, TrackballControls } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useViewerState } from '../hooks/use-viewer-state';
-import type { MeshBuffers, OverlayToggles, ClippingState, GizmoMode } from '@/lib/mesh-core-adapter';
+import type { MeshBuffers, OverlayToggles, GizmoMode } from '@/lib/mesh-core-adapter';
 import { 
-  computeClippingPlane, 
   computeClippingPlaneExtended,
   computePlanePosition, 
-  computeHelperSize, 
-  computePlaneRotation, 
   computeGizmoSize,
   computeCameraRange,
-  quaternionToNormal,
-  type BoundingBox 
+  quaternionToNormal
 } from '../utils/clipping';
 import { ClippingPlaneHelper } from '../components/clipping-plane-helper';
 import { PlaneGizmo } from '../components/plane-gizmo';
@@ -245,7 +241,6 @@ function CameraController() {
   const { camera, controls } = useThree();
   const fitToView = useViewerState((s) => s.fitToView);
   const asset = useViewerState((s) => s.asset);
-  const cameraState = useViewerState((s) => s.camera);
   const setCamera = useViewerState((s) => s.setCamera);
 
   useEffect(() => {

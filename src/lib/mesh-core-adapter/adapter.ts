@@ -572,6 +572,9 @@ export class MeshCoreAdapter {
     mode: 'fast' | 'exact',
     fileId?: string
   ): Promise<MeshAsset> {
+    // Mark parameters as used to satisfy strict noUnusedLocals during build
+    void data;
+    void mode;
     const id = fileId ?? generateFileId(file.name);
     
     // SharedArrayBuffer timeout monitoring (T052)
@@ -751,6 +754,8 @@ export async function createMeshCoreAdapter(
   options: MeshCoreBootstrapOptions = {}
 ): Promise<MeshCoreAdapter> {
   const { baseUrl = '/core' } = options;
+  // ensure baseUrl is referenced (placeholder for future usage)
+  void baseUrl;
   
   const adapter = new MeshCoreAdapter();
   
