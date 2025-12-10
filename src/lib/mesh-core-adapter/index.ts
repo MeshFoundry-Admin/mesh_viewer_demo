@@ -1,7 +1,6 @@
 // Core exports
 export * from './adapter';
 export * from './types';
-export * from './wasm-loader';
 export * from './mesh-loader';
 export * from './mesh-stats';
 export * from './persistence';
