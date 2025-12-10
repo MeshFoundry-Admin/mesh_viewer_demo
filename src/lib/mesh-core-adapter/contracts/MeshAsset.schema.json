@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://meshfoundry.dev/schemas/MeshAsset.schema.json",
+  "title": "MeshAsset",
+  "description": "정규화된 메쉬 데이터. 모든 파서 출력이 이 구조로 변환된다.",
+  "type": "object",
+  "required": [
+    "id",
+    "fileName",
+    "fileSizeBytes",
+    "format",
+    "loadedAt",
+    "loadDurationMs"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID v4 형식의 고유 식별자"
+    },
+    "fileName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "원본 파일명 (확장자 포함)"
+    },
+    "fileSizeBytes": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "파일 크기 (바이트)"
+    },
+    "format": {
+      "type": "string",
+      "enum": ["obj", "stl", "stl_binary", "ply_ascii", "ply_binary_le", "ply_binary_be"],
+      "description": "감지된 파일 포맷"
+    },
+    "loadedAt": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "로드 완료 시점 (Unix timestamp, 밀리초)"
+    },
+    "loadDurationMs": {
+      "type": "number",
+      "minimum": 0,
+      "description": "로드 소요 시간 (밀리초)"
+    },
+    "stats": {
+      "type": "object",
+      "description": "메쉬 통계",
+      "properties": {
+        "vertices": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "정점 개수"
+        },
+        "triangles": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "삼각형 개수"
+        },
+        "bbox": {
+          "type": "object",
+          "description": "바운딩 박스",
+          "required": ["min", "max"],
+          "properties": {
+            "min": {
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 3,
+              "maxItems": 3,
+              "description": "최소 좌표 [x, y, z]"
+            },
+            "max": {
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 3,
+              "maxItems": 3,
+              "description": "최대 좌표 [x, y, z]"
+            }
+          }
+        },
+        "diagonalLength": {
+          "type": "number",
+          "minimum": 0,
+          "description": "바운딩 박스 대각선 길이"
+        }
+      },
+      "required": ["vertices", "triangles", "bbox", "diagonalLength"]
+    }
+  },
+  "additionalProperties": false
+}

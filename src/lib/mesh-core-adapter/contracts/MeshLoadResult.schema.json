@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://meshfoundry.dev/schemas/MeshLoadResult.schema.json",
+  "title": "MeshLoadResult",
+  "description": "로드 작업 결과 래퍼. status에 따라 asset 또는 error가 포함된다.",
+  "type": "object",
+  "required": ["status", "metrics", "logs"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["success", "error"],
+      "description": "작업 결과 상태"
+    },
+    "asset": {
+      "$ref": "MeshAsset.schema.json",
+      "description": "성공 시 로드된 에셋"
+    },
+    "error": {
+      "$ref": "AdapterError.schema.json",
+      "description": "실패 시 에러 객체"
+    },
+    "metrics": {
+      "$ref": "AdapterMetrics.schema.json",
+      "description": "성능 메트릭 (항상 포함)"
+    },
+    "logs": {
+      "type": "array",
+      "items": {
+        "$ref": "LogEvent.schema.json"
+      },
+      "description": "로드 과정의 모든 로그"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "success" } }
+      },
+      "then": {
+        "required": ["asset"],
+        "properties": {
+          "error": false
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "error" } }
+      },
+      "then": {
+        "required": ["error"],
+        "properties": {
+          "asset": false
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://meshfoundry.dev/schemas/LogEvent.schema.json",
+  "title": "LogEvent",
+  "description": "단일 로그 항목. TypeScript LogEvent 타입과 C++ AdapterLogEvent 구조체에 일대일 매핑됨.",
+  "type": "object",
+  "required": ["level", "message", "timestamp"],
+  "properties": {
+    "level": {
+      "type": "string",
+      "enum": ["DEBUG", "INFO", "WARN", "ERROR"],
+      "description": "로그 레벨"
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "로그 메시지"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC 타임스탬프"
+    },
+    "context": {
+      "type": "object",
+      "description": "추가 컨텍스트 정보",
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["io", "adapter", "robustness", "bench"],
+          "description": "로그 카테고리"
+        },
+        "op": {
+          "type": "string",
+          "description": "작업명 (예: import_stl, parse_mesh)"
+        },
+        "elapsed_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "경과 시간 (밀리초)"
+        },
+        "code": {
+          "type": "string",
+          "description": "관련 에러/성공 코드"
+        },
+        "fileId": {
+          "type": "string",
+          "description": "관련 파일 ID"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

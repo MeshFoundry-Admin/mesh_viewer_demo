@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://meshfoundry.dev/schemas/AdapterError.schema.json",
+  "title": "AdapterError",
+  "description": "Adapter 에러 객체. 모든 에러는 이 스키마를 따라야 한다.",
+  "type": "object",
+  "required": ["code", "message", "severity", "timestamp"],
+  "properties": {
+    "code": {
+      "type": "string",
+      "pattern": "^E_[A-Z_]+$",
+      "description": "에러 코드 (E_ 접두사 + SCREAMING_SNAKE_CASE)",
+      "enum": [
+        "E_EMPTY_FILE",
+        "E_FILE_TOO_LARGE",
+        "E_FILE_READ_FAILED",
+        "E_PARSE_FAILED",
+        "E_UNSUPPORTED_FORMAT",
+        "E_MEMORY_LIMIT",
+        "E_FETCH_FAILED",
+        "E_FETCH_TIMEOUT",
+        "E_INVALID_MESH",
+        "E_TOO_MANY_TRIANGLES"
+      ]
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "사람이 읽을 수 있는 에러 메시지"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["error", "warn"],
+      "description": "에러 심각도"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC 타임스탬프"
+    },
+    "context": {
+      "type": "object",
+      "description": "추가 컨텍스트 정보",
+      "properties": {
+        "fileName": {
+          "type": "string",
+          "description": "관련 파일명"
+        },
+        "requiredBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "필요 메모리 바이트 (E_MEMORY_LIMIT)"
+        },
+        "availableBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "가용 메모리 바이트 (E_MEMORY_LIMIT)"
+        },
+        "triangleCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "삼각형 수 (E_TOO_MANY_TRIANGLES)"
+        },
+        "maxTriangles": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "최대 허용 삼각형 수"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

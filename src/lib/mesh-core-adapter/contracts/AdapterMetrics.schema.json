@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://meshfoundry.dev/schemas/AdapterMetrics.schema.json",
+  "title": "AdapterMetrics",
+  "description": "성능·품질 측정치. 모든 로드 작업에서 수집된다.",
+  "type": "object",
+  "required": [
+    "fileId",
+    "parseTimeMs",
+    "totalTimeMs",
+    "vertexCount",
+    "triangleCount",
+    "parserMode",
+    "fallbackCount",
+    "bytesRead"
+  ],
+  "properties": {
+    "fileId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "파일 고유 ID (UUID v4 또는 해시)"
+    },
+    "parseTimeMs": {
+      "type": "number",
+      "minimum": 0,
+      "description": "파싱 소요 시간 (밀리초)"
+    },
+    "totalTimeMs": {
+      "type": "number",
+      "minimum": 0,
+      "description": "전체 로드 시간 (밀리초)"
+    },
+    "vertexCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "정점 개수"
+    },
+    "triangleCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "삼각형 개수"
+    },
+    "parserMode": {
+      "type": "string",
+      "enum": ["fast", "exact"],
+      "description": "사용된 파서 모드"
+    },
+    "fallbackCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "폴백 발생 횟수 (0 또는 1)"
+    },
+    "bytesRead": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "읽은 바이트 수"
+    }
+  },
+  "additionalProperties": false
+}
