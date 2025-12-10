@@ -63,7 +63,7 @@ export function App() {
   useEffect(() => {
     let cancelled = false;
 
-    bootstrapEmbindBridge('/core')
+    bootstrapEmbindBridge(import.meta.env.DEV ? '/core' : '/mesh_viewer_demo/core')
       .then(({ bridge, capabilities }) => {
         if (cancelled) return;
         bridgeRef.current = bridge;
