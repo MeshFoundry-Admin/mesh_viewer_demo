@@ -10,7 +10,7 @@
 
 **High-Performance WebGL-based 3D Mesh Viewer · STL/OBJ/PLY Support · Real-time Clipping**
 
-[Live Demo](#demo) · [Features](#-features) · [Technical Details](#-technical-details) · [Getting Started](#-getting-started)
+[Live Demo](https://meshfoundry-admin.github.io/mesh_viewer_demo) · [Features](#-features) · [Technical Details](#-technical-details) · [Getting Started](#-getting-started)
 
 </div>
 
