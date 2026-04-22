@@ -1,249 +1,125 @@
-# 🔬 Mesh Viewer Demo
+# Mesh Viewer Demo
 
-<div align="center">
+웹 기반 3D 메시 뷰어 데모 애플리케이션입니다.
 
-![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react)
-![Three.js](https://img.shields.io/badge/Three.js-0.166-black?style=flat-square&logo=three.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=flat-square&logo=typescript)
-![WebAssembly](https://img.shields.io/badge/WebAssembly-Enabled-654FF0?style=flat-square&logo=webassembly)
-![Vite](https://img.shields.io/badge/Vite-5.2-646CFF?style=flat-square&logo=vite)
+## 기능
 
-**High-Performance WebGL-based 3D Mesh Viewer · STL/OBJ/PLY Support · Real-time Clipping**
+- OBJ 파일 업로드 및 파싱
+- 3D 메시 시각화
+- 마우스를 이용한 3D 모델 조작 (회전, 줌, 패닝)
+- 와이어프레임/솔리드 렌더링 모드 전환
+- 조명 설정 조정
 
-[Live Demo](https://meshfoundry-admin.github.io/mesh_viewer_demo) · [Features](#-features) · [Technical Details](#-technical-details) · [Getting Started](#-getting-started)
+## 기술 스택
 
-</div>
+- **Frontend**: React, TypeScript, Three.js
+- **Backend**: FastAPI, Python
+- **Infrastructure**: Docker, Docker Compose
 
----
+## 시작하기
 
-## 📋 Project Overview
+### 사전 요구사항
 
-**Mesh Viewer Demo** is a professional viewer application that enables fast loading and analysis of large 3D mesh files directly in the web browser. Through a hybrid WebAssembly and JavaScript parsing architecture, it efficiently handles meshes up to 600MB with 30 million triangles.
+- Docker 및 Docker Compose
+- Node.js 18+ (로컬 개발 시)
+- Python 3.11+ (로컬 개발 시)
 
-### 🎯 Problems Solved
-
-- **Large Mesh Loading Bottleneck**: WASM + JS hybrid parsing selects optimal path per format
-- **Browser Memory Limitations**: Zero-copy buffer management with direct TypedArray references
-- **Real-time Interaction**: GPU-accelerated clipping and TrackballControls camera
-
----
-
-## ✨ Features
-
-### 🗂️ Multi-Format Support
-| Format | ASCII | Binary | Notes |
-|--------|:-----:|:------:|-------|
-| **STL** | ✅ | ✅ | Auto-detection |
-| **OBJ** | ✅ | - | Wavefront standard |
-| **PLY** | ✅ | ✅ (LE/BE) | Stanford format |
-
-### ✂️ Real-time Clipping System
-- **Axis-Aligned Clipping**: Slider control for X/Y/Z axes
-- **Free Plane Clipping**: Rotation/translation via 3D gizmo
-- **GPU Acceleration**: Leveraging Three.js `clippingPlanes` API
-
-### 🎨 Rendering Overlays
-- **Solid/Smooth Shading**: Flat/Smooth normal toggle
-- **Wireframe**: GPU-based immediate rendering
-- **Vertex Points**: Vertex visualization
-- **Normals**: Normal vector debugging
-- **Bounding Box**: AABB display
-
-### 📊 Mesh Analysis
-- Vertex/Triangle count
-- Bounding box dimensions
-- File size and format information
-- Load time metrics
-
----
-
-## 🏗️ Technical Details
-
-### Architecture Diagram
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     React UI Layer                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │ FileDropzone │  │ClippingPanel │  │ StatisticsPanel│    │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-└───────────────────────────┬─────────────────────────────────┘
-                            │
-┌───────────────────────────▼─────────────────────────────────┐
-│                  Zustand State Store                         │
-│         (ViewerState, Overlays, Clipping, Camera)           │
-└───────────────────────────┬─────────────────────────────────┘
-                            │
-┌───────────────────────────▼─────────────────────────────────┐
-│                 MeshCoreAdapter Layer                        │
-│  ┌─────────────────────┐  ┌─────────────────────┐          │
-│  │   Format Detector   │  │   Metrics Collector  │          │
-│  └──────────┬──────────┘  └─────────────────────┘          │
-│             │                                                │
-│  ┌──────────▼──────────────────────────────────────────┐   │
-│  │           Hybrid Parser Router                       │   │
-│  │  ┌─────────────────┐    ┌─────────────────────┐     │   │
-│  │  │  JS Parsers     │    │  WASM Bridge        │     │   │
-│  │  │  (ASCII formats)│    │  (Binary formats)   │     │   │
-│  │  │  - PLY ASCII    │    │  - Binary PLY       │     │   │
-│  │  │  - STL ASCII    │    │  - Binary STL       │     │   │
-│  │  │  - OBJ          │    │                     │     │   │
-│  │  └─────────────────┘    └─────────────────────┘     │   │
-│  └──────────────────────────────────────────────────────┘   │
-└───────────────────────────┬─────────────────────────────────┘
-                            │
-┌───────────────────────────▼─────────────────────────────────┐
-│                 Three.js Render Layer                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │ BufferGeometry│ │ MeshMaterial │  │ClippingPlanes│      │
-│  │ (Zero-copy)  │  │ (GPU Shader) │  │ (GPU Accel)  │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Core Technology Stack
-
-| Area | Technology | Rationale |
-|------|------------|-----------|
-| **UI Framework** | React 18 | Concurrent rendering, Suspense support |
-| **3D Rendering** | Three.js + R3F | Declarative 3D components, WebGL abstraction |
-| **State** | Zustand | Lightweight, TypeScript-friendly, minimal boilerplate |
-| **Parser (ASCII)** | JavaScript | V8 JIT optimization, efficient string processing |
-| **Parser (Binary)** | WebAssembly | Byte manipulation performance, memory control |
-| **Build** | Vite | ESM-based HMR, fast cold start |
-| **Testing** | Vitest + Playwright | Integrated unit/E2E testing |
-
-### Performance Optimizations
-
-#### 1. Hybrid Parsing Strategy
-```typescript
-// ASCII formats: JS parser (leveraging V8 string optimization)
-if (format === 'ply_ascii' || format === 'stl' || format === 'obj') {
-  return parseWithJavaScript(buffer);
-}
-// Binary formats: WASM (efficient byte manipulation)
-return bridge.parseMesh(buffer, format);
-```
-
-#### 2. Zero-Copy Buffer Management
-```typescript
-// Create TypedArray view directly from WASM heap
-const vertexView = new Float64Array(
-  bridge.memory.buffer,
-  vertexPtr,
-  vertexCount * 3
-);
-```
-
-#### 3. GPU Clipping
-```typescript
-// Shader-level clipping (no CPU mesh regeneration needed)
-material.clippingPlanes = [computeClippingPlane(state, bbox)];
-```
-
-### File Size Limits
-
-| Limit | Value | Notes |
-|-------|-------|-------|
-| Max File Size | 600 MB | `E_FILE_TOO_LARGE` error |
-| Max Triangles | 30 million | `E_TOO_MANY_TRIANGULAR` error |
-
----
-
-## 🚀 Getting Started
-
-### Requirements
-
-- Node.js 18+ 
-- pnpm (recommended) or npm
-
-### Installation
+### Docker를 이용한 실행
 
 ```bash
-# Clone repository
-git clone https://github.com/your-username/mesh-viewer-demo.git
+# 프로젝트 클론
+git clone <repository-url>
 cd mesh-viewer-demo
 
-# Install dependencies
-pnpm install
-
-# Start development server
-pnpm dev
+# Docker Compose로 실행
+docker-compose up --build
 ```
 
-Open http://localhost:4200 in your browser
+애플리케이션이 다음 주소에서 실행됩니다:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- API 문서: http://localhost:8000/docs
 
-### Scripts
+### 로컬 개발
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Vite dev server (HMR) |
-| `pnpm build` | TypeScript compile + production build |
-| `pnpm preview` | Preview production build |
-| `pnpm test` | Vitest unit tests |
-| `pnpm test:ui` | Vitest UI mode |
-| `pnpm test:e2e` | Playwright E2E tests |
-| `pnpm lint` | ESLint check |
+#### Backend 설정
 
----
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-## 📁 Project Structure
+#### Frontend 설정
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+## 사용법
+
+1. 웹 브라우저에서 http://localhost:3000 접속
+2. "파일 선택" 버튼을 클릭하여 OBJ 파일 업로드
+3. 업로드된 3D 모델을 마우스로 조작:
+   - 좌클릭 드래그: 회전
+   - 우클릭 드래그: 패닝
+   - 휠: 줌 인/아웃
+4. 렌더링 옵션을 조정하여 다양한 시각화 모드 체험
+
+## API 문서
+
+Backend API의 상세 문서는 서버 실행 후 http://localhost:8000/docs 에서 확인할 수 있습니다.
+
+주요 엔드포인트:
+- `POST /api/upload/mesh`: OBJ 파일 업로드
+- `GET /api/mesh/{mesh_id}`: 메시 데이터 조회
+- `GET /api/health`: 서버 상태 확인
+
+## 프로젝트 구조
 
 ```
 mesh-viewer-demo/
-├── src/
-│   ├── app/                    # App entry point
-│   ├── components/             # UI components
-│   │   ├── file-dropzone.tsx   # File drag & drop
-│   │   ├── clipping-plane-helper.tsx
-│   │   └── plane-gizmo.tsx     # 3D gizmo
-│   ├── hooks/
-│   │   └── use-viewer-state.ts # Zustand store
-│   ├── lib/
-│   │   ├── mesh-core-adapter/  # Mesh loading adapter
-│   │   │   ├── adapter.ts      # Single entry point
-│   │   │   ├── js-parsers.ts   # JS parsers (ASCII)
-│   │   │   ├── wasm-loader.ts  # WASM bridge
-│   │   │   └── contracts/      # JSON Schema
-│   │   └── viewer-ui/          # Viewer UI panels
-│   ├── scenes/
-│   │   └── mesh-viewer.tsx     # Three.js scene
-│   └── utils/
-│       └── clipping.ts         # Clipping utilities
-├── public/core/                # WASM module
-├── tests/                      # E2E tests
-└── package.json
+├── frontend/                 # React 애플리케이션
+│   ├── src/
+│   │   ├── components/      # React 컴포넌트
+│   │   ├── services/        # API 서비스
+│   │   ├── types/           # TypeScript 타입 정의
+│   │   └── utils/           # 유틸리티 함수
+│   ├── public/
+│   └── package.json
+├── backend/                  # FastAPI 애플리케이션
+│   ├── app/
+│   │   ├── api/            # API 라우터
+│   │   ├── core/           # 핵심 설정
+│   │   ├── models/         # 데이터 모델
+│   │   ├── services/       # 비즈니스 로직
+│   │   └── utils/          # 유틸리티 함수
+│   └── requirements.txt
+├── docker-compose.yml
+└── README.md
 ```
 
----
+## 개발 가이드라인
 
-## 🧪 Testing
+- **코드 스타일**: Prettier (Frontend), Black (Backend)
+- **타입 검사**: TypeScript (Frontend), mypy (Backend)
+- **테스트**: Jest (Frontend), pytest (Backend)
+- **커밋 메시지**: Conventional Commits 규칙 준수
 
-### Unit Tests (Vitest)
-```bash
-pnpm test
-```
-
-### E2E Tests (Playwright)
-```bash
-pnpm test:e2e
-```
-
-Test Coverage:
-- `us1-load-mesh.spec.ts`: Mesh loading User Story
-- `us2-overlays.spec.ts`: Overlay toggles
-- `us3-preferences.spec.ts`: User preferences persistence
-
----
-
-## 📄 License
+## 라이선스
 
 MIT License
 
----
+## 기여하기
 
-<div align="center">
+1. 이 저장소를 포크합니다
+2. 기능 브랜치를 생성합니다 (`git checkout -b feature/amazing-feature`)
+3. 변경사항을 커밋합니다 (`git commit -m 'Add some amazing feature'`)
+4. 브랜치에 푸시합니다 (`git push origin feature/amazing-feature`)
+5. Pull Request를 생성합니다
 
-**Questions or feedback? Please open an issue!**
-
-</div>
+Mesh Viewer Demo는 웹 기반 3D 메시 뷰어입니다.
