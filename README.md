@@ -144,7 +144,7 @@ material.clippingPlanes = [computeClippingPlane(state, bbox)];
 ### File Size Limits
 
 | Limit | Value | Notes |
-|-------|-------|-------|
+|-------|-------|---------|
 | Max File Size | 600 MB | `E_FILE_TOO_LARGE` error |
 | Max Triangles | 30 million | `E_TOO_MANY_TRIANGULAR` error |
 
@@ -247,3 +247,5 @@ MIT License
 **Questions or feedback? Please open an issue!**
 
 </div>
+
+Mesh Viewer Demo는 웹 기반 3D 메시 뷰어입니다.
