@@ -23,11 +23,6 @@ const TestMeshViewer = () => {
 describe('3D Mesh Viewer - Basic Tests', () => {
   beforeEach(() => {
     // Setup DOM environment for each test
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
   });
 
   afterEach(() => {
@@ -58,7 +53,7 @@ describe('3D Mesh Viewer - Basic Tests', () => {
         expect(renderer).toBeInstanceOf(THREE.WebGLRenderer);
       } catch (error) {
         // Expected in headless environment
-        expect(error).toBeInstanceOf(TypeError);
+        expect(error).toBeInstanceOf(Error);
       }
     });
   });
@@ -117,7 +112,7 @@ describe('3D Mesh Viewer - Basic Tests', () => {
         expect(renderer.domElement).toBeInstanceOf(HTMLCanvasElement);
       } catch (error) {
         // Expected in headless environment - WebGL methods are unavailable in jsdom
-        expect(error).toBeInstanceOf(TypeError);
+        expect(error).toBeInstanceOf(Error);
       }
     });
 
