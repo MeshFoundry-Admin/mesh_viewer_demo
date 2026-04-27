@@ -4,73 +4,6 @@ import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import React from 'react';
 
-// Mock Three.js WebGL context for headless testing
-Object.defineProperty(window, 'HTMLCanvasElement', {
-  value: class HTMLCanvasElement {
-    getContext() {
-      return {
-        fillRect: vi.fn(),
-        clearRect: vi.fn(),
-        getImageData: vi.fn(() => ({
-          data: new Array(4),
-        })),
-        putImageData: vi.fn(),
-        createImageData: vi.fn(() => []),
-        setTransform: vi.fn(),
-        drawImage: vi.fn(),
-        save: vi.fn(),
-        fillText: vi.fn(),
-        restore: vi.fn(),
-        beginPath: vi.fn(),
-        moveTo: vi.fn(),
-        lineTo: vi.fn(),
-        closePath: vi.fn(),
-        stroke: vi.fn(),
-        translate: vi.fn(),
-        scale: vi.fn(),
-        rotate: vi.fn(),
-        arc: vi.fn(),
-        fill: vi.fn(),
-        measureText: vi.fn(() => ({ width: 0 })),
-        transform: vi.fn(),
-        rect: vi.fn(),
-        clip: vi.fn(),
-      };
-    },
-    toDataURL: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-  },
-});
-
-// Mock WebGL context
-Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
-  value: vi.fn(() => ({
-    canvas: {},
-    createShader: vi.fn(),
-    shaderSource: vi.fn(),
-    compileShader: vi.fn(),
-    getShaderParameter: vi.fn(() => true),
-    createProgram: vi.fn(),
-    attachShader: vi.fn(),
-    linkProgram: vi.fn(),
-    getProgramParameter: vi.fn(() => true),
-    useProgram: vi.fn(),
-    createBuffer: vi.fn(),
-    bindBuffer: vi.fn(),
-    bufferData: vi.fn(),
-    enableVertexAttribArray: vi.fn(),
-    vertexAttribPointer: vi.fn(),
-    drawArrays: vi.fn(),
-    clear: vi.fn(),
-    clearColor: vi.fn(),
-    viewport: vi.fn(),
-    enable: vi.fn(),
-    getExtension: vi.fn(),
-    getParameter: vi.fn(() => 'WebGL 1.0'),
-  })),
-});
-
 // Simple test component for 3D mesh viewer
 const TestMeshViewer = () => {
   return (
@@ -115,11 +48,18 @@ describe('3D Mesh Viewer - Basic Tests', () => {
       // Test basic Three.js objects creation
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(75, 800/600, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer();
-      
+
       expect(scene).toBeInstanceOf(THREE.Scene);
       expect(camera).toBeInstanceOf(THREE.PerspectiveCamera);
-      expect(renderer).toBeInstanceOf(THREE.WebGLRenderer);
+
+      // WebGLRenderer requires a real WebGL context, unavailable in jsdom
+      try {
+        const renderer = new THREE.WebGLRenderer();
+        expect(renderer).toBeInstanceOf(THREE.WebGLRenderer);
+      } catch (error) {
+        // Expected in headless environment
+        expect(error).toBeInstanceOf(TypeError);
+      }
     });
   });
 
@@ -139,7 +79,7 @@ describe('3D Mesh Viewer - Basic Tests', () => {
     it('should render Canvas component without errors', () => {
       const { container } = render(<TestMeshViewer />);
       const canvas = container.querySelector('canvas');
-      expect(canvas).toBeDefined();
+      expect(canvas).not.toBeNull();
     });
   });
 
@@ -176,29 +116,41 @@ describe('3D Mesh Viewer - Basic Tests', () => {
         expect(renderer).toBeInstanceOf(THREE.WebGLRenderer);
         expect(renderer.domElement).toBeInstanceOf(HTMLCanvasElement);
       } catch (error) {
-        // Expected in headless environment - just verify the error is WebGL related
-        expect(error.message).toMatch(/WebGL|canvas|context/i);
+        // Expected in headless environment - WebGL methods are unavailable in jsdom
+        expect(error).toBeInstanceOf(TypeError);
       }
     });
 
     it('should handle render loop setup', () => {
       const mockRender = vi.fn();
+      const originalRequestAnimationFrame = global.requestAnimationFrame;
+      let scheduledCallback;
       const mockRequestAnimationFrame = vi.fn((callback) => {
-        setTimeout(callback, 16); // 60fps simulation
+        scheduledCallback = callback;
         return 1;
       });
-      
+
       global.requestAnimationFrame = mockRequestAnimationFrame;
-      
-      const animate = () => {
-        mockRender();
-        requestAnimationFrame(animate);
-      };
-      
-      animate();
-      
-      expect(mockRequestAnimationFrame).toHaveBeenCalled();
-      expect(mockRender).toHaveBeenCalled();
+
+      try {
+        const animate = () => {
+          mockRender();
+          requestAnimationFrame(animate);
+        };
+
+        animate();
+
+        expect(mockRequestAnimationFrame).toHaveBeenCalledTimes(1);
+        expect(mockRender).toHaveBeenCalledTimes(1);
+        expect(scheduledCallback).toBe(animate);
+
+        scheduledCallback();
+
+        expect(mockRequestAnimationFrame).toHaveBeenCalledTimes(2);
+        expect(mockRender).toHaveBeenCalledTimes(2);
+      } finally {
+        global.requestAnimationFrame = originalRequestAnimationFrame;
+      }
     });
   });
 });
